@@ -3,9 +3,9 @@ import astropy.io.fits as pyfits
 import astropy.wcs as pywcs
 import os
 from six import string_types
-from soxs.utils import mylog, parse_value, get_rot_mat, \
+from xcs_soxs.utils import mylog, parse_value, get_rot_mat, \
     downsample
-from soxs.instrument_registry import instrument_registry
+from xcs_soxs.instrument_registry import instrument_registry
 from tqdm import tqdm
 
 
@@ -187,7 +187,7 @@ def make_exposure_map(event_file, expmap_file, energy, weights=None,
     """
     import pyregion._region_filter as rfilter
     from scipy.ndimage.interpolation import rotate, shift
-    from soxs.instrument import AuxiliaryResponseFile, perform_dither
+    from xcs_soxs.instrument import AuxiliaryResponseFile, perform_dither
     if isinstance(energy, np.ndarray) and weights is None:
         raise RuntimeError("Must supply a single value for the energy if "
                            "you do not supply weights!")
@@ -398,7 +398,7 @@ def write_spectrum(evtfile, specfile, overwrite=False):
         Whether or not to overwrite an existing file with 
         the same name. Default: False
     """
-    from soxs.instrument import RedistributionMatrixFile
+    from xcs_soxs.instrument import RedistributionMatrixFile
     parameters = {}
     if isinstance(evtfile, string_types):
         f = pyfits.open(evtfile)
@@ -731,7 +731,7 @@ def plot_spectrum(specfile, plot_energy=True, lw=2, xmin=None, xmax=None,
     A tuple of the :class:`~matplotlib.figure.Figure` and the :class:`~matplotlib.axes.Axes` objects.
     """
     import matplotlib.pyplot as plt
-    from soxs.instrument import RedistributionMatrixFile
+    from xcs_soxs.instrument import RedistributionMatrixFile
     f = pyfits.open(specfile)
     hdu = f["SPECTRUM"]
     chantype = hdu.header["CHANTYPE"]

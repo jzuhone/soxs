@@ -1,6 +1,6 @@
 import numpy as np
-from soxs.constants import one_arcsec
-from soxs.utils import parse_prng, parse_value, \
+from xcs_soxs.constants import one_arcsec
+from xcs_soxs.utils import parse_prng, parse_value, \
     get_rot_mat
 import astropy.units as u
 import astropy.wcs as pywcs

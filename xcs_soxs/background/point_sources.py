@@ -1,8 +1,8 @@
 import numpy as np
-from soxs import write_photon_list
-from soxs.constants import keV_per_erg, erg_per_keV
-from soxs.spectra import get_wabs_absorb, get_tbabs_absorb
-from soxs.utils import mylog, parse_prng, parse_value
+from xcs_soxs import write_photon_list
+from xcs_soxs.constants import keV_per_erg, erg_per_keV
+from xcs_soxs.spectra import get_wabs_absorb, get_tbabs_absorb
+from xcs_soxs.utils import mylog, parse_prng, parse_value
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.special import erf
 from astropy.table import Table
@@ -46,7 +46,7 @@ def get_flux_scale(ind, fb_emin, fb_emax, spec_emin, spec_emax):
     return fscale
 
 def generate_fluxes(exp_time, area, fov, prng):
-    from soxs.data import cdf_fluxes, cdf_gal, cdf_agn
+    from xcs_soxs.data import cdf_fluxes, cdf_gal, cdf_agn
 
     exp_time = parse_value(exp_time, "s")
     area = parse_value(area, "cm**2")

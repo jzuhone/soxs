@@ -1,15 +1,15 @@
 import os
 import shutil
 import tempfile
-from soxs.spectra import Spectrum, get_tbabs_absorb
-from soxs.spatial import PointSourceModel
-from soxs.simput import SimputCatalog
-from soxs.instrument_registry import \
+from xcs_soxs.spectra import Spectrum, get_tbabs_absorb
+from xcs_soxs.spatial import PointSourceModel
+from xcs_soxs.simput import SimputCatalog
+from xcs_soxs.instrument_registry import \
     make_simple_instrument
-from soxs.instrument import instrument_simulator
-from soxs.events import write_spectrum
+from xcs_soxs.instrument import instrument_simulator
+from xcs_soxs.events import write_spectrum
 from numpy.random import RandomState
-from soxs.tests.utils import spectrum_answer_testing, \
+from xcs_soxs.tests.utils import spectrum_answer_testing, \
     file_answer_testing
 
 make_simple_instrument("lynx_hdxi", "new_hdxi", 20.0, 1024)

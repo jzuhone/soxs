@@ -1,9 +1,9 @@
 import os
-from soxs.utils import soxs_files_path, parse_prng, \
+from xcs_soxs.utils import soxs_files_path, parse_prng, \
     parse_value, mylog
-from soxs.background.spectra import \
+from xcs_soxs.background.spectra import \
     InstrumentalBackgroundSpectrum
-from soxs.background.events import make_diffuse_background
+from xcs_soxs.background.events import make_diffuse_background
 import numpy as np
 from six import string_types
 

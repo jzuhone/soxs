@@ -11,11 +11,11 @@ matrix:
 
         # Try all python versions with the latest numpy
         - python: 2.7
-          env: CMD="py.test soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python'
+          env: CMD="py.test xcs_soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python'
         - python: 3.5
-          env: CMD="py.test soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python3.5'
+          env: CMD="py.test xcs_soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python3.5'
         - python: 3.6
-          env: CMD="py.test --cov=soxs soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python3.6'
+          env: CMD="py.test --cov=xcs_soxs xcs_soxs/tests --answer_dir=$PWD/soxs_test_data"; PYTHON='python3.6'
 
 before_install:
 
@@ -26,8 +26,8 @@ before_install:
     - wget http://hea-www.cfa.harvard.edu/~jzuhone/soxs_test_data_${ANSWER_VER}.tar.gz
     - tar -zxvf soxs_test_data_${ANSWER_VER}.tar.gz
 
-    - mkdir -p $HOME/.config/soxs
-    - printf "[soxs]\nresponse_path = $PWD/soxs_responses" >> $HOME/.config/soxs/soxs.cfg
+    - mkdir -p $HOME/.config/xcs_soxs
+    - printf "[xcs_soxs]\nresponse_path = $PWD/soxs_responses" >> $HOME/.config/xcs_soxs/xcs_soxs.cfg
 
     # Use utf8 encoding. Should be default, but this is insurance against
     # future changes
@@ -62,5 +62,5 @@ script:
 
 after_success:
     - if [[ $PYTHON == "python3.6" ]]; then
-          coveralls --rcfile='soxs/tests/coveragerc';
+          coveralls --rcfile='xcs_soxs/tests/coveragerc';
       fi

@@ -1,9 +1,9 @@
-from soxs.instrument import make_background, AuxiliaryResponseFile, \
+from xcs_soxs.instrument import make_background, AuxiliaryResponseFile, \
     instrument_simulator, make_background_file, simulate_spectrum, \
     RedistributionMatrixFile
-from soxs.background.foreground import hm_astro_bkgnd
-from soxs.background.instrument import acisi_particle_bkgnd
-from soxs.background.spectra import ConvolvedBackgroundSpectrum
+from xcs_soxs.background.foreground import hm_astro_bkgnd
+from xcs_soxs.background.instrument import acisi_particle_bkgnd
+from xcs_soxs.background.spectra import ConvolvedBackgroundSpectrum
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 import astropy.io.fits as pyfits
@@ -110,10 +110,10 @@ def test_add_background():
 
 
 def test_ptsrc():
-    from soxs.background.point_sources import generate_fluxes, \
+    from xcs_soxs.background.point_sources import generate_fluxes, \
         make_ptsrc_background
-    from soxs.data import cdf_fluxes, cdf_gal, cdf_agn
-    from soxs.constants import erg_per_keV
+    from xcs_soxs.data import cdf_fluxes, cdf_gal, cdf_agn
+    from xcs_soxs.constants import erg_per_keV
     tmpdir = tempfile.mkdtemp()
     curdir = os.getcwd()
     os.chdir(tmpdir)

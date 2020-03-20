@@ -8,19 +8,19 @@ import versioneer
 scripts = glob.glob("scripts/*")
 
 cython_extensions = [
-    Extension("soxs.lib.broaden_lines",
-              ["soxs/lib/broaden_lines.pyx"],
+    Extension("xcs_soxs.lib.broaden_lines",
+              ["xcs_soxs/lib/broaden_lines.pyx"],
               language="c", libraries=["m"],
               include_dirs=[np.get_include()])
 ]
 
-setup(name='soxs',
+setup(name='xcs_soxs',
       packages=find_packages(),
       version=versioneer.get_version(),
       description='Simulated Observations of X-ray Sources',
-      author='John ZuHone',
+      author='John ZuHone - Modified by David Turner',
       author_email='john.zuhone@cfa.harvard.edu',
-      url='https://github.com/XRStools/soxs/',
+      url='https://github.com/DavidT3/xcs_soxs/',
       setup_requires=["numpy","cython>=0.24"],
       install_requires=["six","numpy","astropy>=2.0","tqdm",
                         "h5py","scipy","pyyaml","pyregion"],

@@ -7,10 +7,10 @@ from tqdm import tqdm
 from astropy.cosmology import FlatLambdaCDM
 from astropy.table import Table
 
-from soxs.simput import write_photon_list
-from soxs.spatial import BetaModel, construct_wcs
-from soxs.spectra import ApecGenerator
-from soxs.utils import soxs_files_path, mylog, parse_prng, \
+from xcs_soxs.simput import write_photon_list
+from xcs_soxs.spatial import BetaModel, construct_wcs
+from xcs_soxs.spectra import ApecGenerator
+from xcs_soxs.utils import soxs_files_path, mylog, parse_prng, \
     parse_value
 
 # Cosmological parameters for the catalog

@@ -1,13 +1,13 @@
 import tempfile
 import shutil
 import os
-from soxs.events import write_spectrum
-from soxs.instrument import instrument_simulator, \
+from xcs_soxs.events import write_spectrum
+from xcs_soxs.instrument import instrument_simulator, \
     simulate_spectrum
-from soxs.spatial import PointSourceModel
-from soxs.simput import SimputCatalog
-from soxs.spectra import Spectrum
-from soxs.tests.utils import spectrum_answer_testing, \
+from xcs_soxs.spatial import PointSourceModel
+from xcs_soxs.simput import SimputCatalog
+from xcs_soxs.spectra import Spectrum
+from xcs_soxs.tests.utils import spectrum_answer_testing, \
     file_answer_testing
 from numpy.random import RandomState
 

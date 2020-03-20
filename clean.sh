@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rm -rf soxs.egg-info
+rm -rf xcs_soxs.egg-info
 rm -rf build
-rm -rf soxs/__pycache__
+rm -rf xcs_soxs/__pycache__
 
 git clean -fx

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-from soxs import Spectrum, PhotonList, AnnulusModel
+from xcs_soxs import Spectrum, PhotonList, AnnulusModel
 
 parser = argparse.ArgumentParser(description='Create a SIMPUT photon list of an annulus source with '+
                                              'uniform surface brightness from a spectrum supplied in a file.')

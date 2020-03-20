@@ -2,9 +2,9 @@
 
 import argparse
 import os
-from soxs.instrument import simulate_spectrum
-from soxs.spectra import Spectrum
-from soxs.instrument_registry import \
+from xcs_soxs.instrument import simulate_spectrum
+from xcs_soxs.spectra import Spectrum
+from xcs_soxs.instrument_registry import \
     add_instrument_to_registry, instrument_registry
 
 parser = argparse.ArgumentParser(description='Convolve a spectrum with an ARF and RMF and '

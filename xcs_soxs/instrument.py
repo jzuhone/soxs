@@ -5,12 +5,12 @@ import astropy.units as u
 import os
 from collections import defaultdict
 
-from soxs.constants import erg_per_keV, sigma_to_fwhm
-from soxs.simput import read_simput_catalog
-from soxs.utils import mylog, ensure_numpy_array, \
+from xcs_soxs.constants import erg_per_keV, sigma_to_fwhm
+from xcs_soxs.simput import read_simput_catalog
+from xcs_soxs.utils import mylog, ensure_numpy_array, \
     parse_prng, parse_value, get_rot_mat, soxs_cfg
-from soxs.events import write_event_file
-from soxs.instrument_registry import instrument_registry
+from xcs_soxs.events import write_event_file
+from xcs_soxs.instrument_registry import instrument_registry
 from six import string_types
 from tqdm import tqdm
 
@@ -19,7 +19,7 @@ def get_response_path(fn):
     if os.path.exists(fn):
         return os.path.abspath(fn)
     else:
-        resp_path = soxs_cfg.get("soxs", "response_path")
+        resp_path = soxs_cfg.get("xcs_soxs", "response_path")
         if not os.path.exists(resp_path):
             raise IOError("The SOXS response directory %s does not exist!" % resp_path)
         resp_fn = os.path.join(resp_path, fn)
@@ -57,7 +57,7 @@ class AuxiliaryResponseFile(object):
     @classmethod
     def from_instrument(cls, name):
         """
-        Return an :class:`~soxs.instrument.AuxiliaryResponseFile`
+        Return an :class:`~xcs_soxs.instrument.AuxiliaryResponseFile`
         object from the name of an existing instrument
         specification in SOXS.
 
@@ -69,7 +69,7 @@ class AuxiliaryResponseFile(object):
 
         Examples
         --------
-        >>> arf = soxs.AuxiliaryResponseFile.from_instrument("hdxi")
+        >>> arf = xcs_soxs.AuxiliaryResponseFile.from_instrument("hdxi")
         """
         instr = instrument_registry.get(name, None)
         if instr is None:
@@ -257,7 +257,7 @@ class RedistributionMatrixFile(object):
     @classmethod
     def from_instrument(cls, name):
         """
-        Return an :class:`~soxs.instrument.RedistributionMatrixFile`
+        Return an :class:`~xcs_soxs.instrument.RedistributionMatrixFile`
         object from the name of an existing instrument
         specification in SOXS.
 
@@ -269,7 +269,7 @@ class RedistributionMatrixFile(object):
 
         Examples
         --------
-        >>> arf = soxs.RedistributionMatrixFile.from_instrument("hdxi")
+        >>> arf = xcs_soxs.RedistributionMatrixFile.from_instrument("hdxi")
         """
         instr = instrument_registry.get(name, None)
         if instr is None:
@@ -417,7 +417,7 @@ def generate_events(input_events, exp_time, instrument, sky_center,
     3. Determines energy channels using the RMF
 
     This function is not meant to be called by the end-user but is used by
-    the :func:`~soxs.instrument.instrument_simulator` function.
+    the :func:`~xcs_soxs.instrument.instrument_simulator` function.
 
     Parameters
     ----------
@@ -530,7 +530,7 @@ def generate_events(input_events, exp_time, instrument, sky_center,
     w.wcs.crval = event_params["sky_center"]
     w.wcs.crpix = event_params["pix_center"]
     w.wcs.cdelt = [-plate_scale, plate_scale]
-    w.wcs.ctype = ["RA---TAN","DEC--TAN"]
+    w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
     w.wcs.cunit = ["deg"]*2
 
     rot_mat = get_rot_mat(roll_angle)
@@ -721,7 +721,7 @@ def make_background(exp_time, instrument, sky_center, foreground=True,
         set of random numbers, such as for a test. Default is None, 
         which sets the seed based on the system time. 
     """
-    from soxs.background import make_instrument_background, \
+    from xcs_soxs.background import make_instrument_background, \
         make_foreground, make_ptsrc_background
     prng = parse_prng(prng)
     exp_time = parse_value(exp_time, "s")
@@ -812,6 +812,7 @@ def make_background(exp_time, instrument, sky_center, foreground=True,
 
     return events, event_params
 
+
 def make_background_file(out_file, exp_time, instrument, sky_center,
                          overwrite=False, foreground=True, instr_bkgnd=True,
                          ptsrc_bkgnd=True, no_dither=False, dither_params=None,
@@ -877,6 +878,7 @@ def make_background_file(out_file, exp_time, instrument, sky_center,
                                            absorb_model=absorb_model,
                                            nH=nH, prng=prng)
     write_event_file(events, event_params, out_file, overwrite=overwrite)
+
 
 def instrument_simulator(input_events, out_file, exp_time, instrument,
                          sky_center, overwrite=False, instr_bkgnd=True, 
@@ -956,7 +958,7 @@ def instrument_simulator(input_events, out_file, exp_time, instrument,
     >>> instrument_simulator("sloshing_simput.fits", "sloshing_evt.fits", 
     ...                      300000.0, "hdxi_3x10", [30., 45.], overwrite=True)
     """
-    from soxs.background import add_background_from_file
+    from xcs_soxs.background import add_background_from_file
     if not out_file.endswith(".fits"):
         out_file += ".fits"
     mylog.info("Making observation of source in %s." % out_file)
@@ -996,7 +998,7 @@ def simulate_spectrum(spec, instrument, exp_time, out_file,
                       absorb_model="wabs", nH=0.05,
                       overwrite=False, prng=None):
     """
-    Generate a PI or PHA spectrum from a :class:`~soxs.spectra.Spectrum`
+    Generate a PI or PHA spectrum from a :class:`~xcs_soxs.spectra.Spectrum`
     by convolving it with responses. To be used if one wants to 
     create a spectrum without worrying about spatial response. Similar
     to XSPEC's "fakeit".
@@ -1041,17 +1043,17 @@ def simulate_spectrum(spec, instrument, exp_time, out_file,
 
     Examples
     --------
-    >>> spec = soxs.Spectrum.from_file("my_spectrum.txt")
-    >>> soxs.simulate_spectrum(spec, "lynx_lxm", 100000.0, 
+    >>> spec = xcs_soxs.Spectrum.from_file("my_spectrum.txt")
+    >>> xcs_soxs.simulate_spectrum(spec, "lynx_lxm", 100000.0,
     ...                        "my_spec.pi", overwrite=True)
     """
-    from soxs.events import _write_spectrum
-    from soxs.instrument import RedistributionMatrixFile, \
+    from xcs_soxs.events import _write_spectrum
+    from xcs_soxs.instrument import RedistributionMatrixFile, \
         AuxiliaryResponseFile
-    from soxs.spectra import ConvolvedSpectrum
-    from soxs.background.foreground import hm_astro_bkgnd
-    from soxs.background.instrument import instrument_backgrounds
-    from soxs.background.spectra import BackgroundSpectrum, \
+    from xcs_soxs.spectra import ConvolvedSpectrum
+    from xcs_soxs.background.foreground import hm_astro_bkgnd
+    from xcs_soxs.background.instrument import instrument_backgrounds
+    from xcs_soxs.background.spectra import BackgroundSpectrum, \
         ConvolvedBackgroundSpectrum
     prng = parse_prng(prng)
     exp_time = parse_value(exp_time, "s")

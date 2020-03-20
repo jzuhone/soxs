@@ -2,7 +2,7 @@
 
 import argparse
 import numpy as np
-from soxs.background import make_point_source_list
+from xcs_soxs.background import make_point_source_list
 
 parser = argparse.ArgumentParser(description='Make a list of point source properties '
                                              'and write it to an ASCII table file.')

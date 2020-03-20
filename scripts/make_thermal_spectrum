@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import argparse
-from soxs import ApecGenerator
+from xcs_soxs import ApecGenerator
 
 parser = argparse.ArgumentParser(description='Create a thermal spectrum and write it to a file. ' +
                                  'The abundances of individual elements can be set by supplying '

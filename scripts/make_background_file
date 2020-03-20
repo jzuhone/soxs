@@ -3,7 +3,7 @@
 import argparse
 import os
 import numpy as np
-from soxs import make_background_file, \
+from xcs_soxs import make_background_file, \
     instrument_registry, add_instrument_to_registry
 
 parser = argparse.ArgumentParser(description='Run the instrument simulator and produce a simulated background event file.')

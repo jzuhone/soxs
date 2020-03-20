@@ -5,18 +5,18 @@ import subprocess
 import tempfile
 import shutil
 import os
-from soxs.utils import soxs_files_path, mylog, \
+from xcs_soxs.utils import soxs_files_path, mylog, \
     parse_prng, parse_value, soxs_cfg, line_width_equiv, \
     DummyPbar
-from soxs.lib.broaden_lines import broaden_lines
-from soxs.constants import erg_per_keV, hc, \
+from xcs_soxs.lib.broaden_lines import broaden_lines
+from xcs_soxs.constants import erg_per_keV, hc, \
     cosmic_elem, metal_elem, atomic_weights, clight, \
     m_u, elem_names, sigma_to_fwhm, abund_tables, sqrt2pi
 import astropy.io.fits as pyfits
 import astropy.units as u
 import h5py
 from scipy.interpolate import InterpolatedUnivariateSpline
-from soxs.instrument import AuxiliaryResponseFile
+from xcs_soxs.instrument import AuxiliaryResponseFile
 from six import string_types
 from astropy.modeling.functional_models import \
     Gaussian1D
@@ -300,7 +300,7 @@ class Spectrum(object):
 
     def new_spec_from_band(self, emin, emax):
         """
-        Create a new :class:`~soxs.spectra.Spectrum` object
+        Create a new :class:`~xcs_soxs.spectra.Spectrum` object
         from a subset of an existing one defined by a particular
         energy band.
 
@@ -739,7 +739,7 @@ class ApecGenerator(object):
             self.metal_elem = [elem for elem in metal_elem
                                if elem not in self.var_elem[:,0]]
         if abund_table is None:
-            abund_table = soxs_cfg.get("soxs", "abund_table")
+            abund_table = soxs_cfg.get("xcs_soxs", "abund_table")
         if not isinstance(abund_table, string_types):
             if len(abund_table) != 30:
                 raise RuntimeError("User-supplied abundance tables "
@@ -997,7 +997,7 @@ class ConvolvedSpectrum(Spectrum):
 
         Parameters
         ----------
-        spectrum : :class:`~soxs.spectra.Spectrum` object
+        spectrum : :class:`~xcs_soxs.spectra.Spectrum` object
             The input spectrum to convolve with.
         arf : string or :class:`~soxs.instrument.AuxiliaryResponseFile`
             The ARF to use in the convolution.
@@ -1011,7 +1011,7 @@ class ConvolvedSpectrum(Spectrum):
 
     def deconvolve(self):
         """
-        Return the deconvolved :class:`~soxs.spectra.Spectrum`
+        Return the deconvolved :class:`~xcs_soxs.spectra.Spectrum`
         object associated with this convolved spectrum.
         """
         earea = self.arf.interpolate_area(self.emid)

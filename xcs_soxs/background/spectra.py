@@ -1,9 +1,9 @@
 import numpy as np
-from soxs.spectra import Spectrum, ConvolvedSpectrum, \
+from xcs_soxs.spectra import Spectrum, ConvolvedSpectrum, \
     _generate_energies, Energies
-from soxs.constants import erg_per_keV
-from soxs.utils import parse_prng, parse_value
-from soxs.instrument import AuxiliaryResponseFile
+from xcs_soxs.constants import erg_per_keV
+from xcs_soxs.utils import parse_prng, parse_value
+from xcs_soxs.instrument import AuxiliaryResponseFile
 import h5py
 
 
@@ -16,7 +16,7 @@ class BackgroundSpectrum(Spectrum):
     def from_spectrum(cls, spec, fov):
         """
         Create a background spectrum from a regular
-        :class:`~soxs.spectra.Spectrum` object and the width
+        :class:`~xcs_soxs.spectra.Spectrum` object and the width
         of a field of view on a side.
 
         Parameters
@@ -140,8 +140,8 @@ class InstrumentalBackgroundSpectrum(BackgroundSpectrum):
         instr_name : string
             Name of the instrument in the instrument registry.
         """
-        from soxs.instrument_registry import instrument_registry
-        from soxs.background.instrument import instrument_backgrounds
+        from xcs_soxs.instrument_registry import instrument_registry
+        from xcs_soxs.background.instrument import instrument_backgrounds
         instr = instrument_registry[instr_name]
         return instrument_backgrounds[instr["bkgnd"]]
 
@@ -188,7 +188,7 @@ class InstrumentalBackgroundSpectrum(BackgroundSpectrum):
         return energies
 
     def to_scaled_spectrum(self, fov, focal_length=None):
-        from soxs.instrument import FlatResponse
+        from xcs_soxs.instrument import FlatResponse
         fov = parse_value(fov, "arcmin")
         if focal_length is None:
             focal_length = self.default_focal_length

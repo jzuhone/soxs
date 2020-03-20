@@ -2,17 +2,17 @@ import numpy as np
 import os
 import shutil
 import tempfile
-from soxs.spectra import ApecGenerator
-from soxs.spatial import PointSourceModel
-from soxs.simput import SimputCatalog
-from soxs.instrument_registry import \
+from xcs_soxs.spectra import ApecGenerator
+from xcs_soxs.spatial import PointSourceModel
+from xcs_soxs.simput import SimputCatalog
+from xcs_soxs.instrument_registry import \
     get_instrument_from_registry
-from soxs.instrument import instrument_simulator, \
+from xcs_soxs.instrument import instrument_simulator, \
     RedistributionMatrixFile, simulate_spectrum
-from soxs.events import write_spectrum
+from xcs_soxs.events import write_spectrum
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-from soxs.tests.utils import spectrum_answer_testing, \
+from xcs_soxs.tests.utils import spectrum_answer_testing, \
     file_answer_testing
 
 inst_name = "lynx_lxm"

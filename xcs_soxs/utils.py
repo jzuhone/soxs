@@ -15,18 +15,19 @@ soxs_cfg_defaults = {"response_path": "/does/not/exist",
 
 CONFIG_DIR = os.environ.get('XDG_CONFIG_HOME',
                             os.path.join(os.path.expanduser('~'),
-                                         '.config', 'soxs'))
+                                         '.config', 'xcs_soxs'))
+
 if not os.path.exists(CONFIG_DIR):
     try:
         os.makedirs(CONFIG_DIR)
     except OSError:
-        warnings.warn("unable to create soxs config directory")
+        warnings.warn("unable to create xcs_soxs config directory")
 
-CURRENT_CONFIG_FILE = os.path.join(CONFIG_DIR, 'soxs.cfg')
+CURRENT_CONFIG_FILE = os.path.join(CONFIG_DIR, 'xcs_soxs.cfg')
 
 if not os.path.exists(CURRENT_CONFIG_FILE):
     cp = configparser.ConfigParser()
-    cp.add_section("soxs")
+    cp.add_section("xcs_soxs")
     try:
         with open(CURRENT_CONFIG_FILE, 'w') as new_cfg:
             cp.write(new_cfg)
@@ -34,13 +35,13 @@ if not os.path.exists(CURRENT_CONFIG_FILE):
         warnings.warn("unable to write new config file")
 
 soxs_cfg = configparser.ConfigParser(soxs_cfg_defaults)
-soxs_cfg.read([CURRENT_CONFIG_FILE, 'soxs.cfg'])
-if not soxs_cfg.has_section("soxs"):
-    soxs_cfg.add_section("soxs")
+soxs_cfg.read([CURRENT_CONFIG_FILE, 'xcs_soxs.cfg'])
+if not soxs_cfg.has_section("xcs_soxs"):
+    soxs_cfg.add_section("xcs_soxs")
 
 # Logging
 
-soxsLogger = logging.getLogger("soxs")
+soxsLogger = logging.getLogger("xcs_soxs")
 
 ufstring = "%(name)-3s : [%(levelname)-9s] %(asctime)s %(message)s"
 cfstring = "%(name)-3s : [%(levelname)-18s] %(asctime)s %(message)s"

@@ -2,7 +2,7 @@
 
 import numpy as np
 import argparse
-from soxs import write_photon_list
+from xcs_soxs import write_photon_list
 from argparse import RawTextHelpFormatter
 
 descr = "Create a SIMPUT photon list from an ASCII table of positions and energies. " + \

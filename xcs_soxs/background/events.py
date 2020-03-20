@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import astropy.io.fits as pyfits
-from soxs.utils import mylog, get_rot_mat
+from xcs_soxs.utils import mylog, get_rot_mat
 
 key_map = {"telescope": "TELESCOP",
            "mission": "MISSION",
@@ -11,7 +11,7 @@ key_map = {"telescope": "TELESCOP",
 
 
 def add_background_from_file(events, event_params, bkg_file):
-    from soxs.instrument import perform_dither
+    from xcs_soxs.instrument import perform_dither
     f = pyfits.open(bkg_file)
 
     hdu = f["EVENTS"]
@@ -82,7 +82,7 @@ def add_background_from_file(events, event_params, bkg_file):
 
 
 def make_diffuse_background(bkg_events, event_params, rmf, prng=None):
-    from soxs.instrument import perform_dither
+    from xcs_soxs.instrument import perform_dither
 
     n_e = bkg_events["energy"].size
 

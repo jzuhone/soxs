@@ -1,6 +1,6 @@
-from soxs.simput import write_photon_list
-from soxs.spatial import PointSourceModel
-from soxs.spectra import Spectrum
+from xcs_soxs.simput import write_photon_list
+from xcs_soxs.spatial import PointSourceModel
+from xcs_soxs.spectra import Spectrum
 import astropy.io.fits as pyfits
 import tempfile 
 import os

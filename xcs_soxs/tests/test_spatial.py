@@ -1,18 +1,18 @@
-from soxs.spatial import PointSourceModel, BetaModel, \
+from xcs_soxs.spatial import PointSourceModel, BetaModel, \
     AnnulusModel
-from soxs.spectra import ApecGenerator
+from xcs_soxs.spectra import ApecGenerator
 import numpy as np
 import os
 import shutil
 import tempfile
 import astropy.io.fits as pyfits
 from astropy.units import Quantity
-from soxs.events import write_radial_profile, make_exposure_map
-from soxs.simput import SimputCatalog
-from soxs.instrument import instrument_simulator, sigma_to_fwhm
-from soxs.instrument_registry import get_instrument_from_registry, \
+from xcs_soxs.events import write_radial_profile, make_exposure_map
+from xcs_soxs.simput import SimputCatalog
+from xcs_soxs.instrument import instrument_simulator, sigma_to_fwhm
+from xcs_soxs.instrument_registry import get_instrument_from_registry, \
     add_instrument_to_registry
-from soxs.tests.utils import file_answer_testing
+from xcs_soxs.tests.utils import file_answer_testing
 
 kT = Quantity(6.0, "keV")
 Z = 0.3

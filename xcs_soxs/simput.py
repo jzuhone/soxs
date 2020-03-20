@@ -1,9 +1,9 @@
 import astropy.io.fits as pyfits
 import numpy as np
 import os
-from soxs.utils import parse_prng, parse_value, \
+from xcs_soxs.utils import parse_prng, parse_value, \
     ensure_list, mylog
-from soxs.spatial import construct_wcs
+from xcs_soxs.spatial import construct_wcs
 from astropy.units import Quantity
 
 def read_simput_catalog(simput_file):
@@ -263,7 +263,7 @@ class SimputCatalog(object):
         name : string
             The name of the SIMPUT catalog. This will also be the prefix 
             of any SIMPUT catalog file that is written from this object.
-        photon_lists : single or list of :class:`~soxs.simput.PhotonList` instances
+        photon_lists : single or list of :class:`~xcs_soxs.simput.PhotonList` instances
             The photon list(s) to create this catalog with.
         """
         self.name = name

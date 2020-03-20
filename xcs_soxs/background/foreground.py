@@ -1,9 +1,9 @@
 import os
 
-from soxs.background.spectra import BackgroundSpectrum, \
+from xcs_soxs.background.spectra import BackgroundSpectrum, \
     ConvolvedBackgroundSpectrum
-from soxs.background.events import make_diffuse_background
-from soxs.utils import soxs_files_path, parse_prng, mylog
+from xcs_soxs.background.events import make_diffuse_background
+from xcs_soxs.utils import soxs_files_path, parse_prng, mylog
 import numpy as np
 
 # X-ray foreground from Hickox & Markevitch 2007

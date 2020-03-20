@@ -3,9 +3,9 @@
 import argparse
 import os
 import numpy as np
-from soxs import instrument_simulator, \
+from xcs_soxs import instrument_simulator, \
     add_instrument_to_registry
-from soxs.instrument import instrument_registry
+from xcs_soxs.instrument import instrument_registry
 
 parser = argparse.ArgumentParser(description='Run the instrument simulator and produce a simulated event file.')
 parser.add_argument("simput_file", type=str, help='The SIMPUT file to be used as input, or '
