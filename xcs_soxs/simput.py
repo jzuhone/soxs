@@ -6,6 +6,7 @@ from xcs_soxs.utils import parse_prng, parse_value, \
 from xcs_soxs.spatial import construct_wcs
 from astropy.units import Quantity
 
+
 def read_simput_catalog(simput_file):
     r"""
     Read events from a SIMPUT catalog. This will read 
@@ -42,8 +43,8 @@ def read_simput_catalog(simput_file):
         events.append(evt)
     return events, parameters
 
-def handle_simput_catalog(simput_prefix, phfiles, flux, emin, emax, 
-                          src_names, append, overwrite):
+
+def handle_simput_catalog(simput_prefix, phfiles, flux, emin, emax, src_names, append, overwrite):
 
     simputfile = simput_prefix+"_simput.fits"
 

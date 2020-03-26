@@ -36,6 +36,7 @@ if not os.path.exists(CURRENT_CONFIG_FILE):
 
 soxs_cfg = configparser.ConfigParser(soxs_cfg_defaults)
 soxs_cfg.read([CURRENT_CONFIG_FILE, 'xcs_soxs.cfg'])
+
 if not soxs_cfg.has_section("xcs_soxs"):
     soxs_cfg.add_section("xcs_soxs")
 

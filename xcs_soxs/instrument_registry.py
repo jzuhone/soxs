@@ -7,7 +7,6 @@ from copy import deepcopy
 
 # The Instrument Registry
 
-
 class InstrumentRegistry(object):
     def __init__(self):
         self.dep_map = {}
@@ -51,13 +50,12 @@ class InstrumentRegistry(object):
 
 instrument_registry = InstrumentRegistry()
 
-## Lynx
-
-# High-Definition X-ray Imager (HDXI)
+# Lynx High-Definition X-ray Imager (HDXI)
 
 instrument_registry["lynx_hdxi"] = {"name": "lynx_hdxi",
-                                    "arf": "xrs_hdxi_3x10.arf",
+                                    "arf": "xrs_mucal_3x10_3.0eV.arf",
                                     "rmf": "xrs_hdxi.rmf",
+                                    "response_regions": None,
                                     "bkgnd": "acisi",
                                     "fov": 22.0,
                                     "num_pixels": 4096,
@@ -75,6 +73,7 @@ instrument_registry["lynx_hdxi"] = {"name": "lynx_hdxi",
 instrument_registry["lynx_lxm"] = {"name": "lynx_lxm",
                                    "arf": "xrs_mucal_3x10_3.0eV.arf",
                                    "rmf": "xrs_mucal_3.0eV.rmf",
+                                   "response_regions": None,
                                    "bkgnd": "mucal",
                                    "fov": 5.0,
                                    "num_pixels": 300,
@@ -84,16 +83,17 @@ instrument_registry["lynx_lxm"] = {"name": "lynx_lxm",
                                    "dither": True,
                                    "psf": ["gaussian", 0.5],
                                    "imaging": True,
-                                   "grating": False, 
+                                   "grating": False,
                                    "dep_name": "mucal"}
 
 instrument_registry["lynx_lxm_enh"] = {"name": "lynx_lxm_enh",
                                        "arf": "xrs_mucal_3x10_1.5eV.arf",
                                        "rmf": "xrs_mucal_1.5eV.rmf",
+                                       "response_regions": None,
                                        "bkgnd": "mucal",
                                        "fov": 1.0,
                                        "num_pixels": 120,
-                                       "aimpt_coords": [0.0, 0.0], 
+                                       "aimpt_coords": [0.0, 0.0],
                                        "chips": None,
                                        "focal_length": 10.0,
                                        "dither": True,
@@ -104,6 +104,7 @@ instrument_registry["lynx_lxm_enh"] = {"name": "lynx_lxm_enh",
 instrument_registry["lynx_lxm_ultra"] = {"name": "lynx_lxm_ultra",
                                          "arf": "xrs_mucal_3x10_0.3eV.arf",
                                          "rmf": "xrs_mucal_0.3eV.rmf",
+                                         "response_regions": None,
                                          "bkgnd": "mucal",
                                          "fov": 1.0,
                                          "num_pixels": 60,
@@ -133,6 +134,7 @@ instrument_registry["lynx_xgs"] = {"name": "lynx_xgs",
 instrument_registry["athena_wfi"] = {"name": "athena_wfi",
                                      "arf": "athena_wfi_15row_20171107_wo_filter_OnAxis.arf",
                                      "rmf": "athena_wfi_baseline.rmf",
+                                     "response_regions": None,
                                      "bkgnd": "athena_wfi",
                                      "fov": 40.147153,
                                      "num_pixels": 1078,
@@ -152,17 +154,18 @@ instrument_registry["athena_wfi"] = {"name": "athena_wfi",
 instrument_registry["athena_xifu"] = {"name": "athena_xifu",
                                       "arf": "XIFU_CC_BASELINECONF_2018_10_10.arf",
                                       "rmf": "XIFU_CC_BASELINECONF_2018_10_10.rmf",
+                                      "response_regions": None,
                                       "bkgnd": "athena_xifu",
                                       "fov": 5.991992621478149,
                                       "num_pixels": 84,
                                       "aimpt_coords": [0.0, 0.0],
-                                      "chips": [["Polygon", 
+                                      "chips": [["Polygon",
                                                  [-33, 0, 33, 33, 0, -33],
                                                  [20, 38, 20, -20, -38, -20]]],
                                       "focal_length": 12.0,
                                       "dither": False,
                                       "psf": ["gaussian", 5.0],
-                                      "imaging": True, 
+                                      "imaging": True,
                                       "grating": False}
 
 ## Chandra
@@ -171,9 +174,10 @@ instrument_registry["athena_xifu"] = {"name": "athena_xifu",
 
 for cycle in [0, 20]:
     name = "chandra_acisi_cy%d" % cycle
-    instrument_registry[name] = {"name": name, 
+    instrument_registry[name] = {"name": name,
                                  "arf": "acisi_aimpt_cy%d.arf" % cycle,
                                  "rmf": "acisi_aimpt_cy%d.rmf" % cycle,
+                                 "response_regions": None,
                                  "bkgnd": "acisi",
                                  "fov": 20.008,
                                  "num_pixels": 2440,
@@ -196,6 +200,7 @@ for cycle in [0, 20]:
     instrument_registry[name] = {"name": name,
                                  "arf": "aciss_aimpt_cy%d.arf" % cycle,
                                  "rmf": "aciss_aimpt_cy%d.rmf" % cycle,
+                                 "response_regions": None,
                                  "bkgnd": ["acisi", "aciss",
                                            "acisi", "aciss",
                                            "acisi", "acisi"],
@@ -211,7 +216,7 @@ for cycle in [0, 20]:
                                  "psf": ["gaussian", 0.5],
                                  "focal_length": 10.0,
                                  "dither": True,
-                                 "imaging": True, 
+                                 "imaging": True,
                                  "grating": False,
                                  "dep_name": "aciss_cy%d" % cycle}
 
@@ -242,6 +247,7 @@ for energy in ["meg", "heg"]:
 instrument_registry["xrism_resolve"] = {"name": "xrism_resolve",
                                         "arf": "xarm_res_flt_pa_20170818.arf",
                                         "rmf": "xarm_res_h5ev_20170818.rmf",
+                                        "response_regions": None,
                                         "bkgnd": "hitomi_sxs",
                                         "num_pixels": 6,
                                         "fov": 3.06450576,
@@ -259,6 +265,7 @@ instrument_registry["xrism_resolve"] = {"name": "xrism_resolve",
 instrument_registry["axis"] = {"name": "axis",
                                "arf": "axis-31jan18.arf",
                                "rmf": "axis-31jan18.rmf",
+                               "response_regions": None,
                                "bkgnd": "axis",
                                "num_pixels": 5200,
                                "fov": 15.0,
@@ -339,7 +346,7 @@ def add_instrument_to_registry(inst_spec):
                           "details the position in detector coordinates of the nominal aimpoint. "
                           "Assuming [0.0, 0.0].")
             inst["aimpt_coords"] = [0.0, 0.0]
-        default_set = {"name", "arf", "rmf", "bkgnd", "fov", "chips",
+        default_set = {"name", "arf", "rmf", "response_regions", "bkgnd", "fov", "chips",
                        "aimpt_coords", "focal_length", "num_pixels",
                        "dither", "psf", "imaging", "grating"}
     else:

@@ -13,13 +13,14 @@ from xcs_soxs.events import write_event_file
 from xcs_soxs.instrument_registry import instrument_registry
 from six import string_types
 from tqdm import tqdm
+import pyregion._region_filter as rfilter
 
 
 def get_response_path(fn):
     if os.path.exists(fn):
         return os.path.abspath(fn)
     else:
-        resp_path = soxs_cfg.get("xcs_soxs", "response_path")
+        resp_path = soxs_cfg.get("soxs", "response_path")
         if not os.path.exists(resp_path):
             raise IOError("The SOXS response directory %s does not exist!" % resp_path)
         resp_fn = os.path.join(resp_path, fn)
@@ -29,6 +30,138 @@ def get_response_path(fn):
                   "http://hea-www.cfa.harvard.edu/~jzuhone/soxs/responses.html "
                   "and place it in the current working directory or place it in "
                   "the SOXS response directory %s." % resp_path)
+
+
+class SpatialARF(object):
+    def __init__(self, filenames, response_regions):
+        self.filename = filenames[0]
+        self.arf_files = filenames
+        self.response_regions = response_regions
+        first_file = pyfits.open(self.filename)
+        # Only need to read in one set of energy limits, for a set of ARFs generated to describe an instrument the
+        # energy bands should be the same
+        self.elo = first_file["SPECRESP"].data.field("ENERG_LO")
+        self.ehi = first_file["SPECRESP"].data.field("ENERG_HI")
+        self.emid = 0.5 * (self.elo + self.ehi)
+        first_file.close()
+
+        eff_areas = []
+        for filename in self.arf_files:
+            f = pyfits.open(filename)
+            eff_areas.append(np.nan_to_num(f["SPECRESP"].data.field("SPECRESP")).astype("float64"))
+            f.close()
+        self.eff_areas = np.array(eff_areas)
+
+        maxes = [areas.max() for areas in self.eff_areas]
+        self.max_area = max(maxes)
+
+    @classmethod
+    def from_instrument(cls, name):
+        """
+        Return an :class:`~xcs_soxs.instrument.SpatialARF`
+        object from the name of an existing instrument
+        specification in SOXS.
+
+        Parameters
+        ----------
+        name : string
+            The name of the instrument specification to use
+            to obtain the ARF object from.
+
+        Examples
+        --------
+        >>> arf = xcs_soxs.SpatialARF.from_instrument("xmm_epn_0201903501")
+        """
+        instr = instrument_registry.get(name, None)
+        if instr is None:
+            raise KeyError("Instrument '%s' not in registry!" % name)
+        return cls(instr["arf"])
+
+    def __str__(self):
+        return self.filename
+
+    def find_response_region(self, x_coord, y_coord):
+        """
+        Use the positions of the events, and the response regions, to determine which ARF to use.
+
+        Parameters
+        ----------
+        x_coord : np.ndarray
+            The x coordinates of events, in the 'chip' coordinate system
+        y_coord : np.ndarray
+            The y coordinates of events, in the 'chip' coordinate system
+        """
+        num_evts = x_coord.shape[0]
+        reg_ids = -np.ones(num_evts, dtype='int')
+        for reg_ind, reg in enumerate(self.response_regions):
+            region_type, region_args = (reg[0], reg[1:])
+            r = getattr(rfilter, region_type)(*region_args)
+            inside_reg = r.inside(x_coord, y_coord)
+            reg_ids[inside_reg] = reg_ind
+        return reg_ids
+
+    def interpolate_area(self, energy, arf_ind):
+        """
+        Interpolate the effective area to the energies
+        provided  by the supplied *energy* array.
+        """
+        # TODO I wonder if this could be made any faster?
+        e_area = []
+        for event_ind, en in enumerate(energy):
+            valid_arf = self.eff_areas[arf_ind[event_ind], :]
+            e_area.append(np.interp(en, self.emid, valid_arf, left=0.0, right=0.0))
+        return u.Quantity(e_area, "cm**2")
+
+    def detect_events(self, events, exp_time, flux, refband, prng=None):
+        """
+        Use the ARF to determine a subset of photons which
+        will be detected. Returns a boolean NumPy array
+        which is the same is the same size as the number
+        of photons, wherever it is "true" means those photons
+        have been detected.
+
+        Parameters
+        ----------
+        events : dict of np.ndarrays
+            The energies and positions of the photons.
+        exp_time : float
+            The exposure time in seconds.
+        flux : float
+            The total flux of the photons in erg/s/cm^2.
+        refband : array_like
+            A two-element array or list containing the limits
+            of the energy band which the flux was computed in.
+        resp_regs : list of lists
+            A list of lists that describe the regions each ARF file was generated for.
+        prng : :class:`~numpy.random.RandomState` object, integer, or None
+            A pseudo-random number generator. Typically will only
+            be specified if you have a reason to generate the same
+            set of random numbers, such as for a test. Default is None,
+            which sets the seed based on the system time.
+        """
+        prng = parse_prng(prng)
+        energy = events["energy"]
+        if energy.size == 0:
+            return events
+
+        which_arfs = self.find_response_region(events["cx"], events["cy"])
+        earea = self.interpolate_area(energy, which_arfs).value
+        idxs = np.logical_and(energy >= refband[0], energy <= refband[1])
+        rate = flux/(energy[idxs].sum()*erg_per_keV)*earea[idxs].sum()
+        n_ph = prng.poisson(lam=rate*exp_time)
+        fak = float(n_ph)/energy.size
+        if fak > 1.0:
+            mylog.error("Number of events in sample: %d, Number of events wanted: %d" % (energy.size, n_ph))
+            raise ValueError("This combination of exposure time and effective area "
+                             "will result in more photons being drawn than are available "
+                             "in the sample!!!")
+        w = earea / self.max_area
+        randvec = prng.uniform(size=energy.size)
+        eidxs = prng.permutation(np.where(randvec < w)[0])[:n_ph].astype("int64")
+        mylog.info("%s events detected." % n_ph)
+        for key in events:
+            events[key] = events[key][eidxs]
+        return events
 
 
 class AuxiliaryResponseFile(object):
@@ -69,7 +202,7 @@ class AuxiliaryResponseFile(object):
 
         Examples
         --------
-        >>> arf = xcs_soxs.AuxiliaryResponseFile.from_instrument("hdxi")
+        >>> arf = xcs_soxs.AuxiliaryResponseFile.from_instrument("xmm_epn_0201903501")
         """
         instr = instrument_registry.get(name, None)
         if instr is None:
@@ -405,8 +538,7 @@ def perform_dither(t, dither_dict):
     return x_offset, y_offset
 
 
-def generate_events(input_events, exp_time, instrument, sky_center, 
-                    no_dither=False, dither_params=None, 
+def generate_events(input_events, exp_time, instrument, sky_center, no_dither=False, dither_params=None,
                     roll_angle=0.0, subpixel_res=False, prng=None):
     """
     Take unconvolved events and convolve them with instrumental responses. This 
@@ -459,6 +591,26 @@ def generate_events(input_events, exp_time, instrument, sky_center,
         which sets the seed based on the system time. 
     """
     import pyregion._region_filter as rfilter
+
+    def pixel_evts(sky_evts):
+        mylog.info("Pixeling events.")
+
+        # Convert RA, Dec to pixel coordinates
+        x_pix_coord, y_pix_coord = w.wcs_world2pix(sky_evts["ra"], sky_evts["dec"], 1)
+        x_pix_coord -= event_params["pix_center"][0]
+        y_pix_coord -= event_params["pix_center"][1]
+
+        # Rotate physical coordinates to detector coordinates
+        det_rot = np.dot(rot_mat, np.array([x_pix_coord, y_pix_coord]))
+        sky_evts["detx"] = det_rot[0, :] + event_params["aimpt_coords"][0]
+        sky_evts["dety"] = det_rot[1, :] + event_params["aimpt_coords"][1]
+
+        # Convert detector coordinate to "chip coordinates", needed to use the region filters for the different chips
+        sky_evts["cx"] = np.trunc(sky_evts["detx"]) + 0.5 * np.sign(sky_evts["detx"])
+        sky_evts["cy"] = np.trunc(sky_evts["dety"]) + 0.5 * np.sign(sky_evts["dety"])
+
+        return sky_evts
+
     exp_time = parse_value(exp_time, "s")
     roll_angle = parse_value(roll_angle, "deg")
     prng = parse_prng(prng)
@@ -484,13 +636,33 @@ def generate_events(input_events, exp_time, instrument, sky_center,
         raise RuntimeError("Instrument '%s' is not " % instrument_spec["name"] +
                            "designed for imaging observations!")
 
-    arf_file = get_response_path(instrument_spec["arf"])
-    rmf_file = get_response_path(instrument_spec["rmf"])
-    arf = AuxiliaryResponseFile(arf_file)
-    rmf = RedistributionMatrixFile(rmf_file)
+    if isinstance(instrument_spec["response_regions"], list):
+        if not isinstance(instrument_spec["arf"], list):
+            raise RuntimeError("Instrument {i} has response regions, "
+                               "please supply a list of arf files!".format(i=instrument_spec["name"]))
+        elif len(instrument_spec["arf"]) == 0 or len(instrument_spec["response_regions"]) == 0:
+            raise RuntimeError("Instrument {i} has a zero-length list for its arf or "
+                               "response_regions entry".format(i=instrument_spec["name"]))
+        elif len(instrument_spec["arf"]) != len(instrument_spec["response_regions"]):
+            raise RuntimeError("Instrument {i}'s arf and response_regions entries "
+                               "are not the same length".format(i=instrument_spec["name"]))
+        else:
+            arf_files = list(map(get_response_path, instrument_spec["arf"]))
+            rmf_file = get_response_path(instrument_spec["rmf"])
+            arf = SpatialARF(arf_files, instrument_spec["response_regions"])
+            rmf = RedistributionMatrixFile(rmf_file)
+
+    elif instrument_spec["response_regions"] is not None:
+        raise RuntimeError("Instrument {i} response_regions entry "
+                           "should either be None or a list".format(i=instrument_spec["name"]))
+    elif instrument_spec["response_regions"] is None:
+        arf_file = get_response_path(instrument_spec["arf"])
+        rmf_file = get_response_path(instrument_spec["rmf"])
+        arf = AuxiliaryResponseFile(arf_file)
+        rmf = RedistributionMatrixFile(rmf_file)
 
     nx = instrument_spec["num_pixels"]
-    plate_scale = instrument_spec["fov"]/nx/60. # arcmin to deg
+    plate_scale = instrument_spec["fov"]/nx/60.  # arcmin to deg
     plate_scale_arcsec = plate_scale * 3600.0
 
     if not instrument_spec["dither"]:
@@ -525,6 +697,7 @@ def generate_events(input_events, exp_time, instrument, sky_center,
     event_params["chips"] = instrument_spec["chips"]
     event_params["dither_params"] = dither_dict
     event_params["aimpt_coords"] = instrument_spec["aimpt_coords"]
+    event_params["response_regions"] = instrument_spec["response_regions"]
 
     w = pywcs.WCS(naxis=2)
     w.wcs.crval = event_params["sky_center"]
@@ -536,27 +709,26 @@ def generate_events(input_events, exp_time, instrument, sky_center,
     rot_mat = get_rot_mat(roll_angle)
 
     all_events = defaultdict(list)
-
     for i, evts in enumerate(event_list):
-
         mylog.info("Detecting events from source %s." % parameters["sources"][i])
-
-        # Step 1: Use ARF to determine which photons are observed
-
-        mylog.info("Applying energy-dependent effective area from %s." % os.path.split(arf.filename)[-1])
+        # Step 1: Assign detector coordinates to events, then use ARF to determine which photons are observed, or the
+        # other way around if no spatial responses.
         refband = [parameters["emin"][i], parameters["emax"][i]]
-        events = arf.detect_events(evts, exp_time, parameters["flux"][i], refband, prng=prng)
+        if instrument_spec["response_regions"] is None:
+            mylog.info("Applying energy-dependent effective area from %s" % os.path.split(arf.filename)[-1])
+            events = arf.detect_events(evts, exp_time, parameters["flux"][i], refband, prng=prng)
+            events = pixel_evts(events)
+        else:
+            evts = pixel_evts(evts)
+            mylog.info("Applying {i}'s position and energy-dependent effective area".format(i=instrument_spec["name"]))
+            events = arf.detect_events(evts, exp_time, parameters["flux"][i], refband, prng=prng)
 
         n_evt = events["energy"].size
 
         if n_evt == 0:
             mylog.warning("No events were observed for this source!!!")
         else:
-
-            # Step 2: Assign pixel coordinates to events. Apply dithering and
-            # PSF. Clip events that don't fall within the detection region.
-
-            mylog.info("Pixeling events.")
+            # Step 2: Apply dithering and PSF. Clip events that don't fall within the detection region.
 
             # Convert RA, Dec to pixel coordinates
             xpix, ypix = w.wcs_world2pix(events["ra"], events["dec"], 1)
@@ -566,14 +738,13 @@ def generate_events(input_events, exp_time, instrument, sky_center,
 
             events.pop("ra")
             events.pop("dec")
-
             n_evt = xpix.size
 
             # Rotate physical coordinates to detector coordinates
 
             det = np.dot(rot_mat, np.array([xpix, ypix]))
-            detx = det[0,:] + event_params["aimpt_coords"][0]
-            dety = det[1,:] + event_params["aimpt_coords"][1]
+            detx = det[0, :] + event_params["aimpt_coords"][0]
+            dety = det[1, :] + event_params["aimpt_coords"][1]
 
             # Add times to events
             events['time'] = prng.uniform(size=n_evt, low=0.0,
@@ -651,8 +822,8 @@ def generate_events(input_events, exp_time, instrument, sky_center,
                                 events["dety"] + y_offset[keep] - event_params["aimpt_coords"][1]])
                 pix = np.dot(rot_mat.T, det)
 
-                events["xpix"] = pix[0,:] + event_params['pix_center'][0]
-                events["ypix"] = pix[1,:] + event_params['pix_center'][1]
+                events["xpix"] = pix[0, :] + event_params['pix_center'][0]
+                events["ypix"] = pix[1, :] + event_params['pix_center'][1]
 
         if n_evt > 0:
             for key in events:
